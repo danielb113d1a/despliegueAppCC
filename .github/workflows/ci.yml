@@ -58,6 +58,11 @@ jobs:
           cache: 'npm' # Habilita la caché para 'npm ci'
           cache-dependency-path: frontend/package-lock.json
       
+      # --- ESTE ES EL PASO NUEVO QUE ARREGLA EL ERROR ---
+      - name: Add execute permission to mvnw
+        run: chmod +x backend/mvnw
+      # --- FIN DEL PASO NUEVO ---
+          
       # Este es el único comando que tenemos que ejecutar
       # porque tu Makefile se encarga de todo lo demás
       - name: Run all tests (via root Makefile)

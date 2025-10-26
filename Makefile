@@ -2,11 +2,14 @@
 
 .PHONY: backend-test frontend-test test
 
-# --- Detección de Sistema Operativo ---
-ifeq ($(OS),Windows_NT)
-	MVNW_CMD = mvnw
-else
+# --- Detección de Sistema Operativo (Robusta) ---
+# Comprobamos la variable 'ComSpec'. Si está vacía, NO es Windows.
+ifeq ($(ComSpec),)
+	# No es Windows (es Linux/Mac)
 	MVNW_CMD = ./mvnw
+else
+	# Es Windows
+	MVNW_CMD = mvnw
 endif
 
 # Opciones de Maven para CI (Renombrada de _OPTS a _ARGS)

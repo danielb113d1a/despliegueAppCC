@@ -1,13 +1,11 @@
-# Makefile - Backend (Spring Boot)
-# MODIFICADO para aceptar un comando 'mvnw' dinámico
-
 .PHONY: test unit integration clean
 
-# 'MVNW' usará la variable $(MVNW_CMD) pasada desde el Makefile raíz.
-# Si no se pasa, usará 'mvnw' por defecto
-MVNW ?= $(or $(MVNW_CMD),mvnw)
+# La clave para Linux: usa ./mvnw
+MVNW = ./mvnw
 
-# Todos los comandos ahora usan la variable $(MVNW)
+# 'MVN_ARGS' viene del Makefile raíz
+MVN_ARGS ?=
+
 clean:
 	$(MVNW) clean
 

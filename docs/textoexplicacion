@@ -1,0 +1,294 @@
+En Spring Boot, solemos organizar los tests según qué estamos probando, no exactamente siguiendo la estructura completa de main. Por eso en src/test/java/... vemos carpetas como repository/, service/ y controller/, que reflejan las capas que queremos testear, pero no necesitas duplicar todo lo demás (como model/ o config/) en test/.
+
+Te lo explico por capas:
+
+1️⃣ repository/
+
+Aquí van los tests de integración que prueban los repositorios JPA con la base de datos (o un contenedor PostgreSQL con Testcontainers).
+
+Ejemplo: UserRepositoryIT.java.
+
+No necesitas duplicar model/ porque los repositorios usan las entidades de main/model/.
+
+2️⃣ service/
+
+Aquí probamos la lógica de negocio.
+
+Ejemplo: UserServiceTest.java.
+
+No necesitas duplicar repository/ o controller/ porque en los tests puedes hacer mock de las dependencias (con Mockito) o inyectarlas con Spring Boot.
+
+3️⃣ controller/
+
+Aquí probamos los endpoints REST, usualmente con MockMvc o WebTestClient.
+
+No duplicamos service/ porque inyectamos el UserService como dependencia.
+
+🔹 Regla general
+
+En test/ solo creas carpetas para las capas que vas a probar directamente, y esas pruebas consumen las clases de main/ (modelos, servicios, configuraciones).
+No hace falta replicar model/ o config/ en test/ porque las clases ya existen en main/.
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+Exacto. Este test de integración apunta directamente a la lógica real del backend que se encuentra en main (por ejemplo, UserService, UserRepository, etc.).
+
+Al usar @SpringBootTest y levantar el contenedor de PostgreSQL:
+
+Carga todo el contexto de Spring Boot tal como en tu aplicación principal.
+
+Usa la misma base de datos que usarías en producción (aunque sea un contenedor temporal para pruebas).
+
+Ejecuta la lógica real del servicio (userService.registerUser(...)) y persiste los datos usando UserRepository.
+
+Así que cuando implementes tu UserService y el modelo User, este test empezará a pasar automáticamente.
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+Gestor de tareas desde donde se ejecutan los tests
+
+✅ Elección: Make (GNU Make)
+
+👉 Justificación:
+
+Es el gestor de tareas universal y multiplataforma, ideal cuando el proyecto tiene múltiples subcomponentes (como tu carpeta /backend y /frontend).
+
+Permite definir reglas reproducibles (make test, make build, make deploy) que garantizan consistencia entre entornos locales y CI/CD.
+
+Se integra fácilmente con Maven (para backend) y npm/yarn (para frontend).
+
+En tu caso, ya tienes un Makefile en el repositorio principal que ejecuta:
+
+test:
+    echo "=== Ejecutando todos los tests (unit + integration) ==="
+    cd backend && mvn clean verify
+    cd ../frontend && npm test
+
+
+Así, al ejecutar make test desde la raíz, se lanzan automáticamente todos los tests del backend y del frontend, en orden.
+
+🧩 2️⃣ Biblioteca de aserciones (Assertion Library)
+
+✅ Elección: AssertJ
+
+👉 Justificación:
+
+Aunque JUnit ya incluye aserciones básicas (assertEquals, assertTrue...), AssertJ ofrece una API fluida, legible y expresiva, ideal para un estilo BDD (Behavior-Driven Development).
+
+Permite escribir aserciones más naturales y fáciles de mantener, por ejemplo:
+
+assertThat(user.getEmail()).isEqualTo("daniel@example.com");
+assertThat(userRepository.count()).isGreaterThan(0);
+
+
+📘 Estilo elegido: BDD (Behavior-Driven Development)
+➡ Justificación:
+
+En BDD las pruebas describen comportamientos esperados del sistema, no solo resultados concretos.
+
+Esto encaja con la visión de CloudLibrary (una app con casos de uso tipo “registrar usuario”, “autenticar”, “publicar libro”…).
+
+Mejora la legibilidad y colaboración entre desarrolladores y testers, porque los tests se leen casi como lenguaje natural.
+
+🧩 3️⃣ Test Runner o framework de ejecución de pruebas
+
+✅ Elección: JUnit 5 (Jupiter Engine)
+
+👉 Justificación:
+
+Es el estándar actual en el ecosistema Java/Spring Boot.
+
+Soporta tanto TDD como BDD, e integración con AssertJ.
+
+Totalmente integrado con Maven Surefire y Failsafe, que ejecutan los tests unitarios e integrados respectivamente.
+
+Compatible con Spring Boot Test, que permite cargar el contexto de la aplicación real y usar Testcontainers para bases de datos reales (como PostgreSQL en tus tests).
+
+🧠 Estructura en tu proyecto:
+
+Tests unitarios → ejecutados por maven-surefire-plugin
+
+Tests de integración → ejecutados por maven-failsafe-plugin
+
+🧩 4️⃣ Integración con la herramienta de construcción
+
+✅ Elección: Maven + Make
+
+👉 Justificación:
+
+Maven ya es el build system estándar en proyectos Spring Boot.
+
+Define dependencias, fases (test, verify, package, etc.) y se integra perfectamente con los plugins de test.
+
+El Makefile actúa como orquestador: ejecuta mvn clean verify para backend y npm test para frontend.
+
+Permite ejecutar todo localmente con:
+
+make test
+
+
+Y en CI/CD (por ejemplo GitHub Actions) se puede usar exactamente el mismo comando, garantizando reproducibilidad.
+
+🧩 5️⃣ Sistema de integración continua (CI)
+
+✅ Elección: GitHub Actions
+
+👉 Justificación:
+
+Es gratuito para proyectos públicos y se integra nativamente con GitHub.
+
+No requiere servidores adicionales ni configuración externa.
+
+Permite ejecutar workflows automáticos cada vez que haces git push o pull request.
+
+🛠️ Ejemplo de configuración (.github/workflows/ci.yml):
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          mvn clean verify
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm install
+          npm test
+
+
+Con esto:
+
+Cada push ejecuta los mismos tests que el make test local.
+
+Usa PostgreSQL real para los tests de integración con Testcontainers.
+
+🚀 Resumen final
+Elemento	Herramienta elegida	Justificación
+Gestor de tareas	Make	Permite ejecutar tests en backend y frontend de forma unificada y reproducible.
+Biblioteca de aserciones	AssertJ	Sintaxis fluida, compatible con estilo BDD, más expresiva que las aserciones estándar.
+Test runner	JUnit 5 (Jupiter)	Estándar moderno en Java, integración completa con Spring Boot y Maven.
+Build system	Maven (coordinado con Make)	Estándar en proyectos Spring Boot, gestión de dependencias y ciclo de vida de tests.
+CI/CD	GitHub Actions	Gratuito, integrado con GitHub, ejecuta los tests automáticamente al hacer push.
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+En JUnit:
+
+Failure (Fallo)
+
+Ocurre cuando una aserción falla.
+
+Por ejemplo: assertThat(profile).isNotNull(); o assertThat(exitoso).isEqualTo(true); no se cumple.
+
+Significa que el test se ejecutó correctamente, pero el resultado no coincide con lo esperado.
+
+Error
+
+Ocurre cuando el test lanza una excepción inesperada durante su ejecución y no es atrapada por assertThrows.
+
+Por ejemplo:
+
+userService.getProfile(saved.getId());
+
+
+Si este método lanza UnsupportedOperationException (porque todavía no lo implementaste), JUnit lo marca como Error, no como fallo, porque no es que la aserción falló, sino que el test no pudo completarse normalmente.
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+Tests Unitarios: Prueban una sola clase aislada. Usan Mockito para fingir (mockear) las dependencias.
+
+Ejemplo tuyo: BookControllerTest (prueba el controlador fingiendo el servicio).
+
+Ejemplo tuyo: BookServiceTest (prueba el servicio fingiendo el repositorio).
+
+Lugar: Paquetes controller y service. (¡Esto está perfecto!).
+
+Tests de Integración (IT): Prueban cómo funcionan varias capas juntas. Usan @SpringBootTest y @Testcontainers para levantar la aplicación y una base de datos real.
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+
+
+
+/////////////////////////////
+/////////////////////////////
+/////////////////////////////
+

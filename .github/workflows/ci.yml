@@ -1,0 +1,64 @@
+# .github/workflows/ci.yml
+
+name: CI Pipeline (Backend + Frontend)
+
+# 1. EL "CUÁNDO"
+# Se activa en cada 'push' a la rama 'main'
+# y en cada Pull Request que apunte a 'main'
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # 2. EL "QUÉ"
+  build-and-test:
+    name: Build & Test
+    # Usamos una máquina virtual Linux (Ubuntu), donde ./mvnw funciona
+    runs-on: ubuntu-latest 
+
+    # 3. LOS SERVICIOS (Tu BBDD de Test)
+    # Levanta un contenedor de PostgreSQL para los tests
+    # de integración del backend
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432 # Mapea el puerto del contenedor al host
+        # Opción de salud para esperar a que la BBDD esté lista
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    # 4. LOS PASOS
+    steps:
+      # Descarga tu código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configura Java (para el Backend)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # Configura Node.js (para el Frontend)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # O la versión que estés usando
+          cache: 'npm' # Habilita la caché para 'npm ci'
+          cache-dependency-path: frontend/package-lock.json
+      
+      # Este es el único comando que tenemos que ejecutar
+      # porque tu Makefile se encarga de todo lo demás
+      - name: Run all tests (via root Makefile)
+        run: make test

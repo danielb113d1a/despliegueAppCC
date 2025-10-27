@@ -1,7 +1,7 @@
 .PHONY: test unit integration clean
 
 # La clave para Linux: usa ./mvnw
-MVNW = mvnw
+MVNW = ./mvnw
 
 # 'MVN_ARGS' viene del Makefile raíz
 MVN_ARGS ?=

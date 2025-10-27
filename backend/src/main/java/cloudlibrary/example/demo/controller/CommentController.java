@@ -16,7 +16,6 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // BIEN: Buscamos comentarios por el post al que pertenecen
     @GetMapping("/post/{postId}")
     public ResponseEntity<List<Comment>> getCommentsByPost(@PathVariable Long postId) {
         return ResponseEntity.ok(commentService.getCommentsByPost(postId));
@@ -39,8 +38,6 @@ public class CommentController {
             @RequestBody Comment reply) {
 
         try {
-            // Asumimos que el JSON del 'reply' ya trae el 'author'
-            // (cuando tengas JWT, el autor se sacará del token)
             Comment savedReply = commentService.addReply(parentId, reply);
             return ResponseEntity.ok(savedReply);
         } catch (IllegalArgumentException e) {

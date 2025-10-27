@@ -22,12 +22,10 @@ public class RatingService {
         return ratingRepository.findAverageByBook(bookId);
     }
 
-    // Obtener todas las valoraciones de un libro
     public List<Rating> getRatingsByBook(Long bookId) {
         return ratingRepository.findByBookId(bookId);
     }
 
-    // Añadir una valoración
     public Rating addRating(Rating rating) {
         if (rating.getBook() == null) {
             throw new IllegalArgumentException("La valoración debe pertenecer a un libro");
@@ -35,7 +33,6 @@ public class RatingService {
         return ratingRepository.save(rating);
     }
 
-    // Eliminar una valoración
     public void deleteRating(Long ratingId) {
         if (!ratingRepository.existsById(ratingId)) {
             throw new IllegalArgumentException("Rating no encontrado");

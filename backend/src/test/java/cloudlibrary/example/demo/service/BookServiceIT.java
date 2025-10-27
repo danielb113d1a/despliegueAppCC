@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class BookServiceIT { // "IT" = Integration Test
 
-    // --- Configuración de Testcontainers ---
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
@@ -31,7 +30,6 @@ class BookServiceIT { // "IT" = Integration Test
         System.setProperty("spring.datasource.password", postgres.getPassword());
     }
 
-    // --- Inyectamos los Beans REALES ---
     @Autowired
     private BookService bookService;
 

@@ -14,8 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -51,14 +49,12 @@ class RatingServiceIT {
         bookRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Creamos un usuario
         User user = new User();
         user.setUsername("Rater");
         user.setEmail("user" + System.currentTimeMillis() + "@example.com");
         user.setPassword("123");
         testUser = userService.registerUser(user);
 
-        // Creamos un Libro
         Book book = new Book();
         book.setTitle("Libro para valorar");
         book.setAuthor("Autor");
@@ -67,7 +63,6 @@ class RatingServiceIT {
 
     @Test
     void shouldCalculateAverageRatingForBook() {
-        // 1. Damos 3 valoraciones al mismo libro
         Rating r1 = new Rating();
         r1.setBook(testBook);
         r1.setUser(testUser);
@@ -76,7 +71,7 @@ class RatingServiceIT {
 
         Rating r2 = new Rating();
         r2.setBook(testBook);
-        r2.setUser(testUser); // En un caso real, serían usuarios distintos
+        r2.setUser(testUser);
         r2.setValue(4);
         ratingService.addRating(r2);
 
@@ -86,16 +81,13 @@ class RatingServiceIT {
         r3.setValue(3);
         ratingService.addRating(r3);
 
-        // 2. Pedimos la media (5 + 4 + 3) / 3 = 4
         Double average = ratingService.averageRatingForBook(testBook.getId());
 
-        // 3. Verificamos
         assertThat(average).isEqualTo(4.0);
     }
 
     @Test
     void shouldReturnNullAverageForBookWithNoRatings() {
-        // Pedimos la media de un libro sin valoraciones
         Double average = ratingService.averageRatingForBook(testBook.getId());
 
         assertThat(average).isNull();

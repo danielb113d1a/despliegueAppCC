@@ -58,14 +58,12 @@ class CommentServiceIT {
         bookRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Creamos un usuario
         User user = new User();
         user.setUsername("Comentador");
         user.setEmail("user" + System.currentTimeMillis() + "@example.com");
         user.setPassword("123");
         testUser = userService.registerUser(user);
 
-        // Creamos un Post (con su libro)
         Book book = new Book();
         book.setTitle("Libro de prueba");
         book.setAuthor("Autor");
@@ -74,36 +72,30 @@ class CommentServiceIT {
         post.setTitle("Post de prueba");
         post.setAuthor(testUser);
         post.setBook(book);
-        testPost = postService.addPost(post); // addPost se encarga del Cascade
+        testPost = postService.addPost(post);
     }
 
     @Test
     void shouldAddReplyToComment() {
-        // 1. Creamos un comentario padre
         Comment parentComment = new Comment();
         parentComment.setContent("Este es el comentario padre");
         parentComment.setAuthor(testUser);
         parentComment.setPost(testPost);
         Comment savedParent = commentService.addComment(parentComment);
 
-        // 2. Creamos una respuesta
         Comment reply = new Comment();
         reply.setContent("Esta es la respuesta");
         reply.setAuthor(testUser);
-        // OJO: No seteamos el Post aquí, el servicio 'addReply' debe hacerlo
 
-        // 3. Llamamos al servicio de 'addReply'
         Comment savedReply = commentService.addReply(savedParent.getId(), reply);
 
-        // 4. Verificamos
+
         assertThat(savedReply.getId()).isNotNull();
         assertThat(savedReply.getContent()).isEqualTo("Esta es la respuesta");
 
-        // Verificamos la relación
         assertThat(savedReply.getParent()).isNotNull();
         assertThat(savedReply.getParent().getId()).isEqualTo(savedParent.getId());
 
-        // Verificamos que la respuesta se asignó al mismo post que el padre
         assertThat(savedReply.getPost().getId()).isEqualTo(testPost.getId());
     }
 

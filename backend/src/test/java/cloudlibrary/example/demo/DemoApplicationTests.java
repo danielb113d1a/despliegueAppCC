@@ -2,10 +2,9 @@ package cloudlibrary.example.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource; // Importa
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
-// Añade esta anotación para forzar la configuración H2 SOLO para este test
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
         "spring.datasource.driverClassName=org.h2.Driver",

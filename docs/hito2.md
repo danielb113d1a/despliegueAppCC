@@ -272,7 +272,7 @@ on:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: windows-latest 
+    runs-on: ubuntu-latest 
 
     # Levanta un contenedor de PostgreSQL para los tests
     # de integración del backend
@@ -350,7 +350,21 @@ jobs:
 
 ### Integración continua (CI)
 - **Plataforma:** GitHub Actions  
-- **Flujo CI:** instalación de dependencias, levantamiento de PostgreSQL, ejecución de tests backend y frontend, generación de reportes automáticos  
+- **Flujo CI:** Configuración del entorno, instalación del backend, instalación del frontend, ejecución de pruebas automáticas y generación de reportes de test
+
+## Tests implementados
+
+### Controller
+
+### Service
+
+
+## Funcionamiento en mi máquina
+
+
+Funcionamiento actual de Docker:
+
+![Diagrama de arquitectura](../images/CapturaDocker.png)
 
 
 

@@ -10,11 +10,8 @@ import java.util.List;
 
 @Repository
 public interface RatingRepository extends JpaRepository<Rating, Long> {
-
-    // Buscar todos los ratings de un libro
     List<Rating> findByBookId(Long bookId);
 
-    // Calcular promedio de ratings de un libro
     @Query("SELECT AVG(r.value) FROM Rating r WHERE r.book.id = :bookId")
     Double findAverageByBook(@Param("bookId") Long bookId);
 }

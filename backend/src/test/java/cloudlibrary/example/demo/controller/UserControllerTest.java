@@ -20,10 +20,10 @@ import static org.mockito.Mockito.*;
 class UserControllerTest {
 
     @InjectMocks
-    private UserController userController; // Instancia real del controller
+    private UserController userController;
 
     @Mock
-    private UserService userService; // Mock del service
+    private UserService userService;
 
     private User testUser;
 
@@ -38,13 +38,10 @@ class UserControllerTest {
 
     @Test
     void shouldRegisterNewUser() {
-        // Configurar mock
         when(userService.registerUser(any(User.class))).thenReturn(testUser);
 
-        // Llamada al controller
         ResponseEntity<User> response = userController.registerUser(testUser);
 
-        // Verificaciones
         assertThat(response).isNotNull();
         assertThat(response.getBody()).isEqualTo(testUser);
         verify(userService, times(1)).registerUser(any(User.class));
@@ -52,7 +49,6 @@ class UserControllerTest {
 
     @Test
     void shouldNotRegisterDuplicateEmail() {
-        // Configurar mock para lanzar excepción
         when(userService.registerUser(any(User.class)))
                 .thenThrow(new IllegalArgumentException("El usuario ya existe"));
 
@@ -67,7 +63,6 @@ class UserControllerTest {
 
     @Test
     void shouldReturnUserProfile() {
-        // Configurar mock
         when(userService.getProfile(1L)).thenReturn(testUser);
 
         ResponseEntity<User> response = userController.getProfile(1L);
@@ -79,7 +74,6 @@ class UserControllerTest {
 
     @Test
     void shouldAuthenticateUser() {
-        // Configurar mock
         when(userService.authenticate(testUser.getEmail(), testUser.getPassword()))
                 .thenReturn(true);
 

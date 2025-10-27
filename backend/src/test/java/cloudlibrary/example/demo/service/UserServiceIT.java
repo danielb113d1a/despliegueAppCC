@@ -36,13 +36,12 @@ class UserServiceIT {
     @Autowired
     private UserRepository userRepository;
 
-    // Para que el PasswordEncoder se pueda inyectar en la configuración
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setup() {
-        userRepository.deleteAll(); // Limpia la tabla de usuarios
+        userRepository.deleteAll();
     }
 
     @Test
@@ -61,14 +60,12 @@ class UserServiceIT {
 
     @Test
     void shouldNotRegisterDuplicateEmail() {
-        // Primer usuario
         User user1 = new User();
         user1.setUsername("Daniel");
         user1.setEmail("daniel@example.com");
         user1.setPassword("123456");
         userService.registerUser(user1);
 
-        // Segundo usuario con el mismo email
         User user2 = new User();
         user2.setUsername("Otro");
         user2.setEmail("daniel@example.com");
@@ -78,10 +75,8 @@ class UserServiceIT {
                 () -> userService.registerUser(user2));
     }
 
-    // Placeholder para la obtención del perfil de usuario
     @Test
     void shouldReturnUserProfile() {
-        // given — se crea y guarda un usuario real
         User user = new User();
         user.setUsername("Perfil");
         user.setEmail("perfil" + System.currentTimeMillis() + "@example.com");
@@ -89,17 +84,14 @@ class UserServiceIT {
 
         User saved = userService.registerUser(user);
 
-        // when — se intenta recuperar su perfil
         User profile = userService.getProfile(saved.getId());
 
-        // then — se comprueba que el perfil devuelto coincide con el guardado
         assertThat(profile).isNotNull();
         assertThat(profile.getId()).isEqualTo(saved.getId());
         assertThat(profile.getEmail()).isEqualTo(saved.getEmail());
         assertThat(profile.getUsername()).isEqualTo(saved.getUsername());
     }
 
-    // Placeholder para cuando implementes la autenticación
     @Test
     void shouldAuthenticateUser() {
         String password = "pass";

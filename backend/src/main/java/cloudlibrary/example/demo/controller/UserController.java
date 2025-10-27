@@ -16,7 +16,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Registrar un nuevo usuario
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         try {
@@ -27,7 +26,6 @@ public class UserController {
         }
     }
 
-    // Autenticar usuario pasando email y password directamente
     @PostMapping("/login")
     public ResponseEntity<Boolean> authenticate(
             @RequestParam String email,
@@ -41,7 +39,6 @@ public class UserController {
         }
     }
 
-    // Obtener perfil de usuario
     @GetMapping("/{id}")
     public ResponseEntity<User> getProfile(@PathVariable Long id) {
         try {

@@ -79,7 +79,6 @@ class BookControllerTest {
 
     @Test
     void shouldDeleteBook() {
-        // No devuelve nada, solo verificamos que se llame correctamente
         doNothing().when(bookService).deleteBook(1L);
 
         ResponseEntity<Void> response = bookController.deleteBook(1L);

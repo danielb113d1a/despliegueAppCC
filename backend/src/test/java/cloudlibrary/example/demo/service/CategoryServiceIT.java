@@ -60,7 +60,6 @@ class CategoryServiceIT {
         Category category2 = new Category();
         category2.setName("Historia");
 
-        // Verificamos que lanza la excepción que programaste en el servicio
         assertThrows(IllegalArgumentException.class, () -> {
             categoryService.createCategory(category2);
         });

@@ -9,10 +9,9 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Table(name = "usuarios") // puedes dejarlo como "users" si prefieres inglés
+@Table(name = "usuarios")
 public class User {
 
-    // --- Getters & Setters ---
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +25,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // --- Relaciones ---
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 

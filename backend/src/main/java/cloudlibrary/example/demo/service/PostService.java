@@ -34,12 +34,10 @@ public class PostService {
         return postRepository.findByAuthorId(userId);
     }
 
-    // Obtener todos los posts
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
-    // PostService.java
     public Optional<Post> getPostById(Long id) {
         return postRepository.findById(id);
     }
@@ -50,8 +48,6 @@ public class PostService {
             throw new IllegalArgumentException("El post debe tener un usuario");
         }
 
-        // Aunque CascadeType lo hace, esto es más explícito:
-        // Si el libro es nuevo (sin ID), se guarda primero.
         if (post.getBook() != null && post.getBook().getId() == null) {
             bookRepository.save(post.getBook());
         }
@@ -59,7 +55,6 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // Eliminar un post
     public void deletePost(Long postId) {
         if (!postRepository.existsById(postId)) {
             throw new IllegalArgumentException("Post no encontrado");

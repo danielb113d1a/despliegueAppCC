@@ -11,7 +11,6 @@ import java.util.List;
 @Entity
 @Table(name = "categorias")
 public class Category {
-    // Getters y Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

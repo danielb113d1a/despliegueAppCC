@@ -35,7 +35,6 @@ class CommentControllerTest {
 
     @Test
     void shouldGetCommentsByPost() {
-        // Este es el endpoint corregido que discutimos
         when(commentService.getCommentsByPost(1L)).thenReturn(List.of(testComment));
 
         ResponseEntity<List<Comment>> response = commentController.getCommentsByPost(1L);
@@ -58,7 +57,6 @@ class CommentControllerTest {
 
     @Test
     void shouldAddReplyToComment() {
-        // Este es el test para el nuevo endpoint de hilos
         Comment reply = new Comment();
         reply.setId(2L);
         reply.setContent("No estoy de acuerdo");

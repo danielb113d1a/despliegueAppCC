@@ -3,7 +3,7 @@
 # Clave: diferencia entre Linux y Windows
 # Linux → MVNW = ./mvnw
 # Windows → MVNW = mvnw
-MVNW = mvnw
+MVNW = ./mvnw
 
 # 'MVN_ARGS' viene del Makefile raíz
 MVN_ARGS ?=

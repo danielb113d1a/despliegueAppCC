@@ -16,25 +16,26 @@ jobs:
   build-and-test:
     name: Build & Test
     # Usamos una máquina virtual Linux (Ubuntu), donde ./mvnw funciona
-    runs-on: windows-latest
+    runs-on: ubuntu-latest 
 
     # 3. LOS SERVICIOS (Tu BBDD de Test)
     # Levanta un contenedor de PostgreSQL para los tests
     # de integración del backend
-    # services:
-    #   postgres:
-    #     image: postgres:15
-    #     env:
-    #       POSTGRES_USER: test
-    #       POSTGRES_PASSWORD: test
-    #       POSTGRES_DB: testdb
-    #     ports:
-    #       - 5432:5432
-    #     options: >-
-    #       --health-cmd="pg_isready -U test"
-    #       --health-interval=10s
-    #       --health-timeout=5s
-    #       --health-retries=5
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432 # Mapea el puerto del contenedor al host
+        # Opción de salud para esperar a que la BBDD esté lista
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     # 4. LOS PASOS
     steps:

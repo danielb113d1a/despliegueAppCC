@@ -354,17 +354,205 @@ jobs:
 
 ## Tests implementados
 
-### Controller
+### Unitarios
 
-### Service
+#### Tecnologías y palabras clave usadas
+
+- JUnit 5 (`@Test`, `@BeforeEach`, `Assertions`)
+  - `@Test`: indica que el método es un test.
+  - `@BeforeEach`: se ejecuta antes de cada test para inicializar objetos comunes.
+  - `Assertions o assertThat`: para validar resultados esperados.
+
+- Mockito (`@Mock`, `@InjectMocks`, `when`, `verify`, `doNothing`)
+  - `@Mock`: crea un mock de un servicio o dependencia. Un mock es un objeto simulado que imita el comportamiento de un objeto real que tu código necesita, pero que no quieres ejecutar realmente durante el test.
+    - Se usa para aislar el componente que estás probando y evitar dependencias externas.
+    - Permite definir respuestas controladas a llamadas de métodos.
+    - También permite verificar interacciones, es decir, comprobar que ciertos métodos se llamaron correctamente.
+  - `@InjectMocks`: inyecta los mocks dentro del objeto que queremos probar (el controlador).
+  - `when(...).thenReturn(...)`: define el comportamiento esperado de un mock.
+  - `verify(..., times(n))`: verifica que un método del mock fue llamado n veces.
+  - `doNothing().when(...)`: simula métodos void que no devuelven nada.
+  - `any(), eq()`: matchers para parámetros de métodos mockeados.
+
+- Spring Boot / ResponseEntity
+  - Se testea la respuesta HTTP devuelta por los controladores (`ResponseEntity`).
+  - Se comprueba el status code (`is2xxSuccessful()`, `is4xxClientError()`) y el contenido (`getBody()`).
+
+#### Listado de tests unitarios implementados
+
+| BookControllerTest | CategoryControllerTest | CommentControllerTest |
+|-------------------|----------------------|---------------------|
+| shouldReturnAllBooks | shouldGetAllCategories | shouldGetCommentsByPost |
+| shouldReturnBookById | shouldGetCategoryById | shouldAddComment |
+| shouldAddNewBook | shouldReturnNotFoundForInvalidId | shouldAddReplyToComment |
+| shouldDeleteBook | shouldCreateCategory | shouldDeleteComment |
+|                   | shouldUpdateCategory |                     |
+|                   | shouldDeleteCategory |                     |
+
+| PostControllerTest | RatingControllerTest | UserControllerTest |
+|-------------------|--------------------|------------------|
+| shouldGetAllPosts | shouldGetRatingsByBook | shouldRegisterNewUser |
+| shouldGetPostById | shouldAddRating       | shouldNotRegisterDuplicateEmail |
+| shouldReturnNotFoundForInvalidPostId | shouldDeleteRating | shouldReturnUserProfile |
+| shouldAddPost     |                      | shouldAuthenticateUser |
+| shouldDeletePost  |                      |                       |
+
+#### Ejemplo detallado de un test unitario
+
+Vamos a analizar BookControllerTest.shouldReturnBookById como ejemplo de test unitario:
+
+```java
+@Test
+void shouldReturnBookById() {
+    // 1️⃣ Configuración (Arrange)
+    when(bookService.findBookById(1L)).thenReturn(Optional.of(testBook));
+
+    // 2️⃣ Ejecución (Act)
+    ResponseEntity<Book> response = bookController.getBookById(1L);
+
+    // 3️⃣ Verificación (Assert)
+    assertThat(response).isNotNull(); // La respuesta no debe ser null
+    assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(); // Debe ser código 200
+    assertThat(response.getBody()).isEqualTo(testBook); // El cuerpo debe ser igual al libro esperado
+
+    // 4️⃣ Comprobación de interacción con el mock
+    verify(bookService, times(1)).findBookById(1L);
+}
+
+```
+
+Explicación:
+
+1. **Arrange:**
+Se configura el mock `bookService` para que devuelva un `Optional` con `testBook` cuando se llame a `findBookById(1L)`.
+
+2. **Act:**
+Se llama al método real del controlador `getBookById(1L)` y se guarda la respuesta en `ResponseEntity<Book>`.
+
+3. **Assert:**
+    - Se valida que la respuesta no sea `null`.
+    - Se comprueba que el `status code` sea exitoso (`2xx`).
+    - Se asegura que el cuerpo de la respuesta sea el `testBook` esperado.
+
+4. **Verify:**
+   - Se verifica que `bookService.findBookById(1L)` se haya llamado exactamente una vez, asegurando la interacción con la dependencia.
+
+
+### Integración
+
+#### Tecnologías y anotaciones principales
+
+- `@SpringBootTest`:	Levanta el contexto completo de Spring Boot (Beans reales, repositorios, servicios, etc.).
+- `@Testcontainers`:	Indica que se usan contenedores Docker de prueba gestionados por Testcontainers.
+- `PostgreSQLContainer`:	Crea una base de datos PostgreSQL real y efímera (aislada por cada suite de tests).
+- `@Autowired`:	Inyecta beans reales del contexto de Spring: servicios y repositorios.
+- `@BeforeEach`:	Limpia las tablas antes de cada test (deleteAll()), garantizando independencia entre pruebas.
+- `@Transactional`:	asegura rollback automático tras cada test.
+- `assertThat` / `assertThrows`:	De AssertJ y JUnit para validar los resultados y excepciones esperadas.
+
+#### Listado de tests integrales implementados
+
+| BookServiceIT                         | CategoryServiceIT                        | CommentServiceIT        |
+| ------------------------------------- | ---------------------------------------- | ----------------------- |
+| shouldSaveBook                        | shouldCreateCategory                     | shouldAddReplyToComment |
+| shouldFindAllBooks                    | shouldThrowWhenCreatingDuplicateCategory | shouldGetCommentsByPost |
+| shouldFindBookById                    | shouldUpdateCategory                     |                         |
+| shouldReturnEmptyOptionalForInvalidId |                                          |                         |
+| shouldDeleteBook                      |                                          |                         |
+
+| PostServiceIT                       | RatingServiceIT                             | UserServiceIT                   |
+| ----------------------------------- | ------------------------------------------- | ------------------------------- |
+| shouldSavePostAndNewBookWithCascade | shouldCalculateAverageRatingForBook         | shouldRegisterNewUser           |
+|                                     | shouldReturnNullAverageForBookWithNoRatings | shouldNotRegisterDuplicateEmail |
+|                                     |                                             | shouldReturnUserProfile         |
+|                                     |                                             | shouldAuthenticateUser          |
+
+#### Ejemplo detallado de un test integral
+
+Vamos a analizar RatingServiceIT.shouldCalculateAverageRatingForBook() como ejemplo de test unitario:
+
+```java
+@Test
+void shouldCalculateAverageRatingForBook() {
+    // 1️⃣ Arrange
+    Rating r1 = new Rating();
+    r1.setBook(testBook);
+    r1.setUser(testUser);
+    r1.setValue(5);
+    ratingService.addRating(r1);
+
+    Rating r2 = new Rating();
+    r2.setBook(testBook);
+    r2.setUser(testUser);
+    r2.setValue(4);
+    ratingService.addRating(r2);
+
+    Rating r3 = new Rating();
+    r3.setBook(testBook);
+    r3.setUser(testUser);
+    r3.setValue(3);
+    ratingService.addRating(r3);
+
+    // 2️⃣ Act
+    Double average = ratingService.averageRatingForBook(testBook.getId());
+
+    // 3️⃣ Assert
+    assertThat(average).isEqualTo(4.0);
+}
+```
+
+Explicación:
+
+1. **Arrange:** Inserta tres valoraciones reales en la BD PostgreSQL de Testcontainers.
+
+2. **Act:** Llama al método real averageRatingForBook(), que ejecuta una query real a la BD.
+
+3. **Assert:** Comprueba que el promedio calculado (4.0) coincide con el esperado.
 
 
 ## Funcionamiento en mi máquina
 
 
-Funcionamiento actual de Docker:
 
-![Diagrama de arquitectura](../images/CapturaDocker.png)
+### Funcionamiento actual de Docker:
+
+Para poder realizar la práctica y no tener que descargar ninguna base de datos, se ha creado un contenedor de docker que corre la base de datos que se va a usar, quedando de la siguiente manera:
+
+![Docker](../images/CapturaDocker.png)
+
+### Funcionamiento de tests unitarios:
+
+#### Test unitario fallido
+![Tests Unitarios Fallo](../images/CapturaMakeUnitFail.png)
+
+#### Test unitario exitoso
+![Tests Unitarios Correctos](../images/CapturaMakeUnit.png)
+
+### Funcionamiento de tests integración:
+
+#### Test de integración fallido
+![Tests Integración Fallo](../images/CapturaMakeIntegrationFail.png)
+
+#### Test de integración exitoso
+![Tests Integración Correctos](../images/CapturaMakeIntegration.png)
+
+### Funcionamiento de tests de frontend:
+
+#### Test de frontend fallido
+![Tests Frontend Fallo](../images/CapturaTestFrontendFail.png)
+
+#### Test de frontend exitoso
+![Tests Frontend Correctos](../images/CapturaTestFrontend.png)
+
+### Funcionamiento de GitHub Actions:
+
+#### GitHub Actions fallido
+![GitHub Fallo](../images/CapturaGitHubFallo.png)
+
+#### GitHub Actions exitoso
+![GitHub Correcto](../images/CapturaGitHubCorrecto.png)
+
+
 
 
 

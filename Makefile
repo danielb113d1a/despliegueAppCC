@@ -1,5 +1,3 @@
-# Makefile Raíz (Simplificado)
-
 .PHONY: backend-test frontend-test test
 
 # Opciones de Maven para CI (Batch mode y perfil de test)

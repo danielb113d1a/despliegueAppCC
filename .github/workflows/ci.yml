@@ -1,8 +1,5 @@
-# .github/workflows/ci.yml
-
 name: CI Pipeline (Backend + Frontend)
 
-# 1. EL "CUÁNDO"
 # Se activa en cada 'push' a la rama 'main'
 # y en cada Pull Request que apunte a 'main'
 on:
@@ -12,13 +9,10 @@ on:
     branches: [ main ]
 
 jobs:
-  # 2. EL "QUÉ"
   build-and-test:
     name: Build & Test
-    # Usamos una máquina virtual Linux (Ubuntu), donde ./mvnw funciona
     runs-on: ubuntu-latest 
 
-    # 3. LOS SERVICIOS (Tu BBDD de Test)
     # Levanta un contenedor de PostgreSQL para los tests
     # de integración del backend
     services:
@@ -37,7 +31,6 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    # 4. LOS PASOS
     steps:
       # Descarga tu código
       - name: Checkout repository
@@ -58,18 +51,14 @@ jobs:
           cache: 'npm' # Habilita la caché para 'npm ci'
           cache-dependency-path: frontend/package-lock.json
       
-      # --- ESTE ES EL PASO NUEVO QUE ARREGLA EL ERROR ---
       - name: Add execute permission to mvnw
         run: chmod +x backend/mvnw
-      # --- FIN DEL PASO NUEVO ---
           
-      # Este es el único comando que tenemos que ejecutar
-      # porque tu Makefile se encarga de todo lo demás
       - name: Run all tests (via root Makefile)
         run: make test
     
       - name: Upload Test Reports
-        if: always() # ¡Importante! Sube los reportes incluso si el paso anterior falla
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-reports

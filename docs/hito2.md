@@ -1,6 +1,6 @@
 # Hito 2: Integración continua
 
-## 🧱 Elección del gestor de tareas
+## Elección del gestor de tareas
 
 Para este proyecto, que combina un backend desarrollado con **Java Spring Boot** y un frontend con **React**, se han seleccionado distintos gestores de tareas específicos para cada entorno, junto con una herramienta de orquestación general que permite ejecutar todas las pruebas de forma unificada.
 
@@ -10,7 +10,7 @@ Para este proyecto, que combina un backend desarrollado con **Java Spring Boot**
 
 En el lado del **backend**, se ha elegido **Maven** como gestor de tareas y construcción del proyecto.
 
-#### Justificación técnica:
+#### Justificación:
 - **Ecosistema estándar en Spring Boot**: Maven es el sistema más usado y documentado dentro del ecosistema Spring, lo que garantiza compatibilidad con plugins, dependencias y guías oficiales.
 - **Gestión declarativa y reproducible**: el archivo `pom.xml` centraliza todas las dependencias y versiones, facilitando la reproducibilidad de los entornos de desarrollo y de integración continua.
 - **Integración con testing**: incluye plugins maduros como `maven-surefire-plugin` (para tests unitarios) y `maven-failsafe-plugin` (para tests de integración).  
@@ -23,21 +23,11 @@ En el lado del **backend**, se ha elegido **Maven** como gestor de tareas y cons
 
 En el **frontend**, desarrollado con **React**, se ha optado por usar **npm** como gestor de tareas.
 
-#### Justificación técnica
+#### Justificación
 - **Integración nativa**: React (especialmente con *Create React App* o *Vite*) usa npm como herramienta de gestión de dependencias y scripts.
 - **Reproducibilidad en CI**: el uso de `npm ci` junto con `package-lock.json` garantiza instalaciones deterministas e idénticas en todos los entornos.
 - **Simplicidad**: los scripts de prueba se definen directamente en el `package.json`, permitiendo ejecutar tests con un solo comando.
 - **Independencia de la base de datos**: el entorno de frontend no interactúa directamente con PostgreSQL, por lo que el gestor de tareas se centra exclusivamente en la parte de testing de interfaz y lógica de componentes.
-
-### 🔹 Orquestación general — Makefile
-
-Para unificar la ejecución de pruebas de ambos entornos, se ha añadido un **Makefile** en la raíz del proyecto.  
-Este permite lanzar todos los tests (backend y frontend) con un único comando, tanto en local como en CI.
-
-#### Justificación técnica
-- **Estandariza comandos**: evita tener que recordar rutas o banderas específicas.
-- **Facilita integración continua**: GitHub Actions puede ejecutar directamente `make test` como paso principal.
-- **Aísla la configuración del entorno**: permite pasar variables (por ejemplo, conexión a PostgreSQL) sin modificar los comandos base.
 
 ## Elección de la biblioteca de aserciones
 
@@ -49,9 +39,9 @@ Este permite lanzar todos los tests (backend y frontend) con un único comando, 
 - AssertJ  
 - Hamcrest  
 
-**Recomendación:** AssertJ
+**Opcion seleccionada:** AssertJ
 
-### Justificación técnica
+### Justificación
 
 - **Sintaxis fluida y expresiva (BDD-style):** permite escribir pruebas más legibles, cercanas al lenguaje natural. Por ejemplo:  
 
@@ -79,9 +69,9 @@ Aunque JUnit puro está orientado a TDD, AssertJ permite un estilo más declarat
 - TestNG  
 - Spock (Groovy)  
 
-**Recomendación:** JUnit 5 (Jupiter)
+**Opcion seleccionada:** JUnit 5 (Jupiter)
 
-### Justificación técnica
+### Justificación
 
 - **Estándar de facto en Java/Spring Boot:** la documentación oficial de Spring Boot y la mayoría de starters usan JUnit 5. Esto asegura compatibilidad con plugins de Maven y CI.
 
@@ -96,7 +86,7 @@ Aunque JUnit puro está orientado a TDD, AssertJ permite un estilo más declarat
 
 ### Integración con CI
 
-- Compatible con GitHub Actions, Jenkins o CircleCI.  
+- Compatible con GitHub Actions.  
 - Los resultados de tests se pueden exportar a XML/HTML para reportes automáticos.
 
 ---
@@ -109,9 +99,9 @@ Aunque JUnit puro está orientado a TDD, AssertJ permite un estilo más declarat
 - Mocha + Chai  
 - Vitest (si se usa Vite)  
 
-**Recomendación:** Jest
+**Opcion seleccionada:** Jest
 
-### Justificación técnica
+### Justificación
 
 - **Integración directa con Create React App y Vite:** viene preconfigurado y listo para ejecutar tests unitarios de componentes y lógica JS.
 
@@ -121,51 +111,125 @@ Aunque JUnit puro está orientado a TDD, AssertJ permite un estilo más declarat
 
 - **Flexibilidad:** permite mocks, tests asincrónicos, pruebas parametrizadas, snapshots, y es ampliamente adoptado en la comunidad React.
 
-- **Estilo BDD:** con `describe` y `it`, permite estructurar los tests de manera legible y orientada al comportamiento esperado.
+- **Estilo BDD:** con `describe` e `it`, permite estructurar los tests de manera legible y orientada al comportamiento esperado.
 
 
 ## Integración de pruebas en la herramienta de construcción
 
-Para asegurar que las pruebas se ejecuten de manera consistente tanto en local como en el entorno de integración continua, se han integrado los tests dentro de las herramientas de construcción de cada parte del proyecto, siguiendo las convenciones estándar del lenguaje y el ecosistema.
+Para garantizar que los tests se ejecuten de forma uniforme, reproducible y automatizada tanto en local como en el entorno de integración continua (CI), se han integrado dentro de las herramientas de construcción estándar de cada entorno.
+Además, se ha implementado una orquestación global mediante Makefiles que permite lanzar todas las pruebas del proyecto —tanto backend como frontend— desde la raíz del repositorio.
 
 ### Backend (Spring Boot / Maven)
 
-Todos los tests se ejecutan mediante Maven usando el plugin `maven-surefire` para tests unitarios y `maven-failsafe` para tests de integración.
+En el backend, desarrollado con Java Spring Boot, las pruebas se integran mediante Maven, utilizando sus plugins nativos:
 
-Esto permite que cualquier desarrollador o sistema CI ejecute los tests exactamente de la misma manera, sin depender de configuraciones externas.
+- `maven-surefire-plugin` → ejecución de tests unitarios.
+
+- `maven-failsafe-plugin` → ejecución de tests de integración.
+
+Esta estructura asegura que cualquier desarrollador o entorno CI ejecute las pruebas con los mismos comandos y configuraciones, sin dependencias externas ni scripts adicionales.
+
+Para simplificar la ejecución, se ha definido un **Makefile dentro del directorio backend/**, que permite ejecutar los tests mediante tareas predefinidas:
+
+```makefile
+.PHONY: test unit integration clean
+
+# Clave: diferencia entre Linux y Windows
+# Linux → MVNW = ./mvnw
+# Windows → MVNW = mvnw
+MVNW = ./mvnw
+
+# 'MVN_ARGS' se pasa desde el Makefile raíz
+MVN_ARGS ?=
+
+clean:
+	$(MVNW) clean
+
+unit:
+	@echo "=== Ejecutando tests unitarios (Surefire) ==="
+	$(MVNW) test $(MVN_ARGS)
+
+integration:
+	@echo "=== Ejecutando tests de integración (Failsafe) ==="
+	$(MVNW) verify -DskipUnitTests=true $(MVN_ARGS)
+
+test:
+	@echo "=== Ejecutando todos los tests (unit + integration) ==="
+	$(MVNW) clean verify $(MVN_ARGS)
+```
+
+Con esto, desde el directorio del backend se pueden ejecutar fácilmente:
+
+```bash
+# Todos los tests (unitarios + integración)
+make test
+
+# Solo unitarios
+make unit
+
+# Solo integración
+make integration
+```
 
 ### Frontend (React / npm)
 
-Los tests se ejecutan mediante los npm scripts definidos en `package.json`
+En el frontend, basado en React, las pruebas se ejecutan mediante npm scripts, definidos en el archivo package.json:
 
-Esto asegura que la instalación de dependencias y la ejecución de tests sea reproducible y uniforme en todos los entornos.
+```json
+"scripts": {
+  "test": "react-scripts test",
+  "ci:test": "react-scripts test --watchAll=false"
+}
+```
+
+Esto permite ejecutar las pruebas de manera reproducible tanto en local como en CI mediante:
+
+```bash
+# Instalar dependencias de forma limpia
+npm ci
+
+# Ejecutar los tests en modo no interactivo
+npm run ci:test
+```
+
+El entorno del frontend no depende del backend ni de la base de datos (PostgreSQL), por lo que las pruebas se centran exclusivamente en la lógica de componentes y comportamiento del UI.
 
 ### Orquestación general — Makefile
 
-Se ha añadido un objetivo `make test` en la raíz del proyecto para unificar la ejecución de tests de backend y frontend:
+En la raíz del proyecto se ha implementado un Makefile principal que actúa como punto de entrada unificado para la ejecución de todos los tests del sistema.
+Este Makefile se encarga de invocar los tests del backend y frontend, gestionando correctamente los entornos y argumentos necesarios para cada uno.
 
 ```makefile
 .PHONY: backend-test frontend-test test
 
+# Opciones de Maven para CI (Batch mode y perfil de test)
+BACKEND_CI_ARGS = -B -Dspring.profiles.active=test
+
 backend-test:
-	cd backend && ./mvnw -B -Dspring.profiles.active=test clean verify
+	@echo "--- Ejecutando Tests del Backend (via nested Make) ---"
+	cd backend && make test MVN_ARGS="$(BACKEND_CI_ARGS)"
 
 frontend-test:
+	@echo "--- Ejecutando Tests del Frontend (Jest) ---"
 	cd frontend && npm ci && npm run ci:test
 
 test: backend-test frontend-test
+	@echo "--- Pipeline de CI completado ---"
 ```
 
-Con este objetivo, ejecutar todos los tests se reduce a:
+De esta forma, desde la raíz del repositorio, la ejecución completa de todos los tests (backend y frontend) se reduce a un solo comando:
 
 ```bash
 make test
 ```
 
+Esto permite que tanto los desarrolladores en local como el sistema de integración continua (por ejemplo, GitHub Actions) ejecuten exactamente los mismos comandos, garantizando consistencia, trazabilidad y simplicidad en todo el flujo de testing.
+
 ## Elección y configuración de un sistema de integración continua (CI)
 
-Para este proyecto se ha seleccionado un sistema de integración continua (CI) gratuito que permita ejecutar automáticamente los tests al realizar cambios en el repositorio de GitHub. Entre las opciones estándar se encuentran CircleCI, Jenkins, Travis CI y GitHub Actions.
+Para este proyecto se ha configurado un sistema de Integración Continua (CI) que automatiza la ejecución de tests y validaciones de código cada vez que se realiza un push o se abre un pull request en GitHub.
 
+Entre las opciones más comunes **(GitHub Actions, Jenkins, Travis CI o CircleCI)** se ha optado por GitHub Actions, debido a su integración nativa con GitHub, flexibilidad y gratuidad para repositorios públicos.
 Se ha decidido utilizar **GitHub Actions**, por las siguientes razones:
 
 - **Integración nativa con GitHub:** se activa automáticamente al hacer un push o abrir un pull request, sin necesidad de configuraciones externas complejas.
@@ -178,12 +242,91 @@ Se ha decidido utilizar **GitHub Actions**, por las siguientes razones:
 
 ### Flujo de CI configurado
 
-1. Instalación de dependencias de backend y frontend.  
-2. Levantamiento de un contenedor de PostgreSQL para pruebas de integración.  
-3. Ejecución de tests de backend con Maven y tests de frontend con npm.  
-4. Generación de reportes y resultados de tests para revisión automática.
+Cada vez que se realiza un push o pull request, se ejecutan las siguientes etapas:
+
+1. Configuración del entorno: instalación de dependencias necesarias (Java, Node.js, PostgreSQL).
+2. Instalación del backend: descarga de dependencias Maven y compilación del proyecto.
+3. Instalación del frontend: instalación de dependencias npm y ejecución de tests.
+4. Ejecución de pruebas automáticas:
+    -  Tests unitarios y de integración en el backend (JUnit + AssertJ).
+    - Tests de componentes y UI en el frontend (Jest + Testing Library).
+5. Generación de reportes de test: resultados exportados automáticamente para revisión.
 
 De esta manera, cada push al repositorio activa el pipeline de GitHub Actions y ejecuta todos los tests de manera consistente y reproducible.
+
+### Configuración del pipeline en GitHub Actions
+
+El flujo completo se define en el archivo `.github/workflows/ci.yml` en la raíz del repositorio:
+
+```yml
+name: CI Pipeline (Backend + Frontend)
+
+# Se activa en cada 'push' a la rama 'main'
+# y en cada Pull Request que apunte a 'main'
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: windows-latest 
+
+    # Levanta un contenedor de PostgreSQL para los tests
+    # de integración del backend
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432 # Mapea el puerto del contenedor al host
+        # Opción de salud para esperar a que la BBDD esté lista
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      # Descarga tu código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configura Java (para el Backend)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # Configura Node.js (para el Frontend)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # O la versión que estés usando
+          cache: 'npm' # Habilita la caché para 'npm ci'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Add execute permission to mvnw
+        run: chmod +x backend/mvnw
+          
+      - name: Run all tests (via root Makefile)
+        run: make test
+    
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+```
 
 ## Resumen rápido de herramientas y configuraciones de testing
 

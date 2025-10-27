@@ -11,7 +11,7 @@ on:
 jobs:
   build-and-test:
     name: Build & Test
-    runs-on: ubuntu-latest 
+    runs-on: windows-latest 
 
     # Levanta un contenedor de PostgreSQL para los tests
     # de integración del backend

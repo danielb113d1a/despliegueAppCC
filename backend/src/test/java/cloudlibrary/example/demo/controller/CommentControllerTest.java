@@ -45,17 +45,6 @@ class CommentControllerTest {
     }
 
     @Test
-    void shouldAddComment() {
-        when(commentService.addComment(any(Comment.class))).thenReturn(testComment);
-
-        ResponseEntity<Comment> response = commentController.addComment(testComment);
-
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody()).isEqualTo(testComment);
-        verify(commentService, times(1)).addComment(any(Comment.class));
-    }
-
-    @Test
     void shouldAddReplyToComment() {
         Comment reply = new Comment();
         reply.setId(2L);

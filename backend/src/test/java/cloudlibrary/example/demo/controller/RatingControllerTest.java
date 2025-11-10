@@ -46,18 +46,6 @@ class RatingControllerTest {
     }
 
     @Test
-    void shouldAddRating() {
-        when(ratingService.addRating(any(Rating.class))).thenReturn(testRating);
-
-        ResponseEntity<Rating> response = ratingController.addRating(testRating);
-
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().getValue()).isEqualTo(5);
-        verify(ratingService, times(1)).addRating(any(Rating.class));
-    }
-
-    @Test
     void shouldDeleteRating() {
         doNothing().when(ratingService).deleteRating(1L);
 

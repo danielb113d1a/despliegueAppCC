@@ -4,21 +4,21 @@
 
 Para el diseño e implementación del microservicio base de la aplicación, se ha seleccionado el framework **Spring Boot**, continuando con la pila tecnológica establecida en el Hito 2.
 
-La elección de Spring Boot como pilar del backend se justifica por su idoneidad para la arquitectura de microservicios, basándose en las siguientes ventajas técnicas:
+La elección de Spring Boot como nucleo del backend se justifica por su idoneidad para la arquitectura de microservicios, basándose en las siguientes ventajas técnicas:
 
 - **Servidor Embebido y Autocontención:** Spring Boot utiliza un servidor (Tomcat por defecto) embebido, lo que permite empaquetar la aplicación completa, con todas sus dependencias, en un único fichero `.jar` ejecutable. Esto es fundamental para la agilidad en el despliegue, la portabilidad y la contenedorización (Docker) que exige una arquitectura de microservicios.
 
-- **Autoconfiguración (Convention over Configuration):** El framework reduce drásticamente la configuración "boilerplate" (plantilla). Al detectar dependencias en el `pom.xml` (como `spring-boot-starter-web` o `spring-boot-starter-data-jpa`), Spring Boot configura automáticamente los beans necesarios (DispatcherServlet, EntityManager, etc.), permitiendo al equipo centrarse en la lógica de negocio en lugar de en la infraestructura.
+- **Autoconfiguración (Convention over Configuration):** Al detectar dependencias en el `pom.xml` (como `spring-boot-starter-web` o `spring-boot-starter-data-jpa`), Spring Boot configura automáticamente los beans necesarios (DispatcherServlet, EntityManager, etc.), permitiendo al equipo centrarse en la lógica de negocio en lugar de en la infraestructura.
 
 - **Ecosistema Estratégico (Spring Cloud):** Aunque en este hito solo se desarrolla un microservicio, la elección de Spring Boot es estratégica. Es la base del ecosistema Spring Cloud, que provee soluciones nativas y probadas para los patrones de diseño de microservicios más complejos, como Service Discovery (Eureka, Consul), Configuration Server o Circuit Breakers (Resilience4j).
 
-- **Gestión de Dependencias Simplificada:** El sistema de `spring-boot-starter-*` agrupa dependencias comunes y gestiona sus versiones, asegurando la compatibilidad entre librerías (como Jackson, Hibernate, Spring Core) y evitando conflictos (`jar hell`).
+- **Gestión de Dependencias Simplificada:** El sistema de `spring-boot-starter-*` agrupa dependencias comunes y gestiona sus versiones, asegurando la compatibilidad entre librerías (como Jackson, Hibernate, Spring Core) y evitando conflictos.
 
 - **Facilidad de Testing:** Como se demostró en el Hito 2, Spring Boot proporciona un soporte de primer nivel para la creación de tests unitarios y de integración. Utilidades como `@SpringBootTest`, `MockMvc` y la integración con Testcontainers facilitan la creación de pruebas exhaustivas que validan la funcionalidad del microservicio de forma aislada.
 
 ## Diseño de API, Rutas y Tests
 
-Los objetivos de este hito se han fundamentado en un pilar central: un **diseño por capas** estricto que garantiza el desacoplamiento entre la lógica de la API (web) y la lógica de negocio. Para este proyecto, se ha implementado la arquitectura clásica de tres capas popularizada por Spring: **Controlador, Servicio y Repositorio**.
+Los objetivos de este hito se han fundamentado un **diseño por capas** estricto que garantiza el desacoplamiento entre la lógica de la API (web) y la lógica de negocio. Para este proyecto, se ha implementado la arquitectura clásica de tres capas popularizada por Spring: **Controlador, Servicio y Repositorio**.
 
 Este diseño no solo organiza el código, sino que define responsabilidades claras, siendo la clave para un sistema mantenible, escalable y, fundamentalmente, fácil de testear.
 
@@ -133,7 +133,7 @@ Para este proyecto, se ha optado por utilizar la pila de logging estándar propo
 
 La justificación de esta elección se basa en varios puntos clave:
 
-- **Estándar de la Industria:** SLF4J es la fachada de logging de facto en el ecosistema Java. Permite que el código de nuestra aplicación (controladores, servicios) dependa únicamente de una abstracción (`org.slf4j.Logger`) y no de una implementación concreta.
+- **Estándar del lenguaje:** SLF4J es la fachada de logging de facto en el ecosistema Java. Permite que el código de nuestra aplicación (controladores, servicios) dependa únicamente de una abstracción (`org.slf4j.Logger`) y no de una implementación concreta.
 
 - **Desacoplamiento:** Gracias a SLF4J, podríamos cambiar la implementación de logging subyacente (por ejemplo, de Logback a Log4j2) en el futuro, simplemente cambiando una dependencia en `pom.xml`, sin necesidad de modificar una sola línea de nuestro código fuente.
 

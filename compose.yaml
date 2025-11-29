@@ -1,0 +1,64 @@
+services:
+  # ----------------------------------------------------------------
+  # SERVICIO 1: BASE DE DATOS (PostgreSQL)
+  # ----------------------------------------------------------------
+  db:
+    image: postgres:15        # Usamos la imagen que ya tienes
+    container_name: database-app
+    restart: always
+    environment:
+      # Configuración de creación de la BBDD
+      POSTGRES_DB: mi_basedatos      # Coincide con tu URL JDBC
+      POSTGRES_USER: postgres        # Coincide con spring.datasource.username
+      POSTGRES_PASSWORD: postgres    # Coincide con spring.datasource.password
+    volumes:
+      - db_data:/var/lib/postgresql/data # Persistencia de datos (Hito 4)
+    networks:
+      - red-app
+
+  # ----------------------------------------------------------------
+  # SERVICIO 2: BACKEND (Spring Boot)
+  # ----------------------------------------------------------------
+  backend:
+    image: mi-backend         # Tu imagen construida manualmente
+    container_name: backend-app
+    restart: on-failure
+    depends_on:
+      - db                    # Espera a que la base de datos arranque
+    environment:
+      # INYECCIÓN DE VARIABLES (Configuración como código)
+      # Aquí conectamos el application.properties con la realidad de Docker
+      
+      DB_HOST: db             # ¡CRUCIAL! Usa el nombre del servicio de arriba, no localhost
+      DB_PORT: 5432
+      DB_NAME: mi_basedatos   # Sobrescribe ${DB_NAME}
+      DB_USER: postgres       # Sobrescribe ${DB_USER}
+      DB_PASSWORD: postgres   # Sobrescribe ${DB_PASSWORD}
+    ports:
+      - "8080:8080"           # Expuesto para que puedas probar la API
+    networks:
+      - red-app
+
+  # ----------------------------------------------------------------
+  # SERVICIO 3: FRONTEND (React + Nginx)
+  # ----------------------------------------------------------------
+  frontend:
+    image: mi-frontend        # Tu imagen construida manualmente
+    container_name: frontend-app
+    restart: on-failure
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"             # Entrarás por localhost:3000 -> Nginx puerto 80
+    networks:
+      - red-app
+
+# ----------------------------------------------------------------
+# VOLÚMENES Y REDES
+# ----------------------------------------------------------------
+volumes:
+  db_data: # Docker gestiona este espacio para guardar tus tablas
+
+networks:
+  red-app:
+    driver: bridge

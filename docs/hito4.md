@@ -194,7 +194,7 @@ El proceso de construcción sigue una secuencia lógica de 3 fases principales:
           labels: ${{ steps.meta-backend.outputs.labels }}
 ```
 
-### Comprobación del flujo en GitHuvb Actions
+### Comprobación del flujo en GitHub Actions
 Para comprobar que la implementación ha sido exitosa, se comprueba desde el GitHub Actions una vez se sube a GitHub:
 
 ![GitHub Actions](../images/Practica4GitHubActions.png)

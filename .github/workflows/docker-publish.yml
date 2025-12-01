@@ -3,7 +3,6 @@ name: Docker Publish
 on:
   push:
     branches: [ "main", "master" ]
-    # Se ejecuta solo si cambias algo en estas carpetas o en este archivo
     paths:
       - 'backend/**'
       - 'frontend/**'
@@ -11,7 +10,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -47,7 +45,6 @@ jobs:
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
 
-      # --- FRONTEND ---
       - name: Extract metadata (tags, labels) for Frontend
         id: meta-frontend
         uses: docker/metadata-action@v5

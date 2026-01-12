@@ -1,0 +1,17 @@
+[build]
+builder = "nixpacks"
+
+# Servicio Backend
+[service.backend]
+path = "backend"
+buildCommand = "mvn clean package -DskipTests"
+startCommand = "java -jar target/demo-0.0.1-SNAPSHOT.jar"
+restartPolicyType = "ON_FAILURE"
+variable.PORT = "8080"
+
+# Servicio Frontend
+[service.frontend]
+path = "frontend"
+buildCommand = "npm install && npm run build"
+startCommand = "npm run preview -- --port $PORT --host"
+restartPolicyType = "ON_FAILURE"

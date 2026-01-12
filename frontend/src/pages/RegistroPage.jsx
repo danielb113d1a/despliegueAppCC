@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; 
+import './Login.css';
+import { registerUser } from '../services/api';
 
 const RegistroPage = () => {
     const navigate = useNavigate();
-    
+
     const [formData, setFormData] = useState({
-        nombreCompleto: '', 
-        username: '',       
+        nombreCompleto: '',
+        username: '',
         email: '',
         password: '',
         confirmarPassword: ''
@@ -33,19 +34,17 @@ const RegistroPage = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users/register', {
+            const data = await registerUser({
                 username: formData.username,
                 email: formData.email,
                 password: formData.password,
             });
 
-            if (response.status === 201 || response.status === 200) {
-                setMensaje({ texto: '¡Cuenta creada con éxito! Redirigiendo...', tipo: 'success' });
-                
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
-            }
+            setMensaje({ texto: '¡Cuenta creada con éxito! Redirigiendo...', tipo: 'success' });
+
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
         } catch (error) {
             if (error.response?.status === 409) {
                 setMensaje({ texto: 'Este correo o usuario ya está registrado.', tipo: 'error' });
@@ -72,63 +71,63 @@ const RegistroPage = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="login-form">
-                    
+
                     <div className="input-group">
                         <label>Nombre Completo</label>
-                        <input 
-                            name="nombreCompleto" 
-                            type="text" 
-                            placeholder="Juan Pérez" 
-                            value={formData.nombreCompleto} 
-                            onChange={handleChange} 
+                        <input
+                            name="nombreCompleto"
+                            type="text"
+                            placeholder="Juan Pérez"
+                            value={formData.nombreCompleto}
+                            onChange={handleChange}
                         />
                     </div>
 
                     <div className="input-group">
                         <label>Usuario</label>
-                        <input 
-                            name="username" 
-                            type="text" 
-                            placeholder="juanperez99" 
-                            value={formData.username} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            name="username"
+                            type="text"
+                            placeholder="juanperez99"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
 
                     <div className="input-group">
                         <label>Correo Electrónico</label>
-                        <input 
-                            name="email" 
-                            type="email" 
-                            placeholder="juan@ejemplo.com" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            name="email"
+                            type="email"
+                            placeholder="juan@ejemplo.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
 
                     <div className="input-group">
                         <label>Contraseña</label>
-                        <input 
-                            name="password" 
-                            type="password" 
-                            placeholder="••••••••" 
-                            value={formData.password} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
 
                     <div className="input-group">
                         <label>Confirmar Contraseña</label>
-                        <input 
-                            name="confirmarPassword" 
-                            type="password" 
-                            placeholder="••••••••" 
-                            value={formData.confirmarPassword} 
-                            onChange={handleChange} 
-                            required 
+                        <input
+                            name="confirmarPassword"
+                            type="password"
+                            placeholder="••••••••"
+                            value={formData.confirmarPassword}
+                            onChange={handleChange}
+                            required
                         />
                     </div>
 

@@ -46,7 +46,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "https://lovely-wisdom-production.up.railway.app"
+                "https://cloudlibrary.up.railway.app"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

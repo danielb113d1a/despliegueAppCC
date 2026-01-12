@@ -1,17 +1,20 @@
+# Forzamos el uso de Nixpacks para evitar el error del Dockerfile
 [build]
 builder = "nixpacks"
 
-# Servicio Backend
-[service.backend]
-path = "backend"
+# Configuración del proceso de construcción
+[setup]
 buildCommand = "mvn clean package -DskipTests"
-startCommand = "java -jar target/demo-0.0.1-SNAPSHOT.jar"
-restartPolicyType = "ON_FAILURE"
-variable.PORT = "8080"
 
-# Servicio Frontend
-[service.frontend]
-path = "frontend"
-buildCommand = "npm install && npm run build"
-startCommand = "npm run preview -- --port $PORT --host"
-restartPolicyType = "ON_FAILURE"
+# Configuración del arranque del servidor
+[start]
+# IMPORTANTE: Asegúrate de que el nombre del .jar sea exactamente este
+# Si en tu pom.xml el artifactId o la versión son distintos, cámbialo aquí
+command = "java -jar target/demo-0.0.1-SNAPSHOT.jar"
+
+# Verificación de salud para asegurar que el despliegue fue exitoso
+[healthcheck]
+path = "/api/books"
+interval = 30
+timeout = 5
+retries = 3

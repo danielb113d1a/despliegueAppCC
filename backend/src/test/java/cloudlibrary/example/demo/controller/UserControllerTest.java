@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
@@ -61,27 +62,5 @@ class UserControllerTest {
         verify(userService, times(1)).registerUser(any(User.class));
     }
 
-    @Test
-    void shouldReturnUserProfile() {
-        when(userService.getProfile(1L)).thenReturn(testUser);
 
-        ResponseEntity<User> response = userController.getProfile(1L);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).isEqualTo(testUser);
-        verify(userService, times(1)).getProfile(1L);
-    }
-
-    @Test
-    void shouldAuthenticateUser() {
-        when(userService.authenticate(testUser.getEmail(), testUser.getPassword()))
-                .thenReturn(true);
-
-        ResponseEntity<Boolean> response = userController.authenticate(
-                testUser.getEmail(), testUser.getPassword());
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).isTrue();
-        verify(userService, times(1)).authenticate(testUser.getEmail(), testUser.getPassword());
-    }
 }

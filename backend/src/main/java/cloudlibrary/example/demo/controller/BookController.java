@@ -1,73 +1,75 @@
 package cloudlibrary.example.demo.controller;
 
 import cloudlibrary.example.demo.model.Book;
+import cloudlibrary.example.demo.model.Category;
+import cloudlibrary.example.demo.model.User;
+import cloudlibrary.example.demo.repository.CategoryRepository;
 import cloudlibrary.example.demo.service.BookService;
-import cloudlibrary.example.demo.service.RatingService;
+import cloudlibrary.example.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
 
-    private static final Logger log = LoggerFactory.getLogger(BookController.class);
-
     private final BookService bookService;
-    private final RatingService ratingService;
+    private final UserService userService;
+    private final CategoryRepository categoryRepository;
 
-    public BookController(BookService bookService, RatingService ratingService) {
+    public BookController(BookService bookService, UserService userService, CategoryRepository categoryRepository) {
         this.bookService = bookService;
-        this.ratingService = ratingService;
+        this.userService = userService;
+        this.categoryRepository = categoryRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        log.info("Request GET /api/books - Solicitando todos los libros");
-        List<Book> books = bookService.findAllBooks();
-        return ResponseEntity.ok(books);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
-        log.info("Request GET /api/books/{} - Solicitando libro por ID", id);
-
-        return bookService.findBookById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public List<Book> getAllBooks() {
+        return bookService.findAllBooks();
     }
 
     @PostMapping
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        log.info("Request POST /api/books - Creando nuevo libro con título: {}", book.getTitle());
-        Book saved = bookService.saveBook(book);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<?> createBook(@RequestBody Map<String, Object> bookData) {
+        try {
+            String title = (String) bookData.get("title");
+            String author = (String) bookData.get("author");
+            String description = (String) bookData.get("description");
+            String email = (String) bookData.get("email");
+
+            Object catIdObj = bookData.get("categoryId");
+            Category category = null;
+
+            if (catIdObj != null) {
+                Long catId = Long.valueOf(catIdObj.toString());
+                category = categoryRepository.findById(catId).orElse(null);
+            }
+
+            if (email == null) {
+                return ResponseEntity.badRequest().body("Error: El email es obligatorio");
+            }
+
+            User owner = userService.getUserByEmail(email);
+
+            Book newBook = new Book();
+            newBook.setTitle(title);
+            newBook.setAuthor(author);
+            newBook.setDescription(description);
+            newBook.setUser(owner);
+            newBook.setCategory(category);
+
+            return ResponseEntity.ok(bookService.saveBook(newBook));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error al crear libro: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        log.info("Request DELETE /api/books/{} - Eliminando libro", id);
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/average-rating")
-    public ResponseEntity<Double> getAverageRating(@PathVariable Long id) {
-        log.info("Request GET /api/books/{}/average-rating - Calculando valoración media", id);
-
-        Optional<Book> book = bookService.findBookById(id);
-        if (book.isEmpty()) {
-            log.warn("No se encontró el libro con ID {} al calcular la media", id);
-            return ResponseEntity.notFound().build();
-        }
-
-        Double avg = ratingService.averageRatingForBook(id);
-        Double result = (avg != null) ? avg : 0.0;
-        return ResponseEntity.ok(result);
     }
 }

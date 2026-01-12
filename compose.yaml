@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       POSTGRES_DB: mi_basedatos  
-      POSTGRES_USER: postgres      
+      POSTGRES_USER: postgres       
       POSTGRES_PASSWORD: postgres   
     volumes:
       - db_data:/var/lib/postgresql/data 
@@ -15,7 +15,8 @@ services:
 
   # Backend (Spring Boot)
   backend:
-    image: mi-backend        
+    image: mi-backend
+    build: ./backend       
     container_name: backend-app
     restart: on-failure
     depends_on:
@@ -33,9 +34,10 @@ services:
 
   # Frontend (React + Nginx)
   frontend:
-    image: mi-frontend      
+    image: mi-frontend
+    build: ./frontend      
     container_name: frontend-app
-    restart: on-failure
+    restart: always
     depends_on:
       - backend
     ports:

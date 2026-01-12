@@ -7,7 +7,7 @@ describe('App Component', () => {
 
   it('should render the main headline', () => {
     render(<App />);
-    const headline = screen.getByText(/Bienvenido a CloudLibrary/i);
+    const headline = screen.getByText(/Biblioteca CloudLibrary/i);
     expect(headline).toBeInTheDocument();
   });
 

@@ -1,7 +1,9 @@
 package cloudlibrary.example.demo.controller;
 
 import cloudlibrary.example.demo.model.Post;
+import cloudlibrary.example.demo.model.User;
 import cloudlibrary.example.demo.service.PostService;
+import cloudlibrary.example.demo.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +23,9 @@ class PostControllerTest {
 
     @Mock
     private PostService postService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private PostController postController;
@@ -67,12 +72,22 @@ class PostControllerTest {
 
     @Test
     void shouldAddPost() {
+        java.util.Map<String, String> requestBody = new java.util.HashMap<>();
+        requestBody.put("title", "Título Test");
+        requestBody.put("content", "Contenido Test");
+        requestBody.put("email", "test@email.com");
+
+        User mockUser = new User();
+        mockUser.setEmail("test@email.com");
+
+        when(userService.getUserByEmail("test@email.com")).thenReturn(mockUser);
+
         when(postService.addPost(any(Post.class))).thenReturn(testPost);
 
-        ResponseEntity<Post> response = postController.addPost(testPost);
+        ResponseEntity<?> response = postController.addPost(requestBody);
 
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody()).isEqualTo(testPost);
+        verify(userService, times(1)).getUserByEmail("test@email.com");
         verify(postService, times(1)).addPost(any(Post.class));
     }
 

@@ -5,6 +5,7 @@ import cloudlibrary.example.demo.repository.RatingRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RatingService {
@@ -27,10 +28,15 @@ public class RatingService {
     }
 
     public Rating addRating(Rating rating) {
-        if (rating.getBook() == null) {
-            throw new IllegalArgumentException("La valoración debe pertenecer a un libro");
+        Optional<Rating> existingRating = ratingRepository.findByUserAndBook(rating.getUser(), rating.getBook());
+
+        if (existingRating.isPresent()) {
+            Rating r = existingRating.get();
+            r.setValue(rating.getValue());
+            return ratingRepository.save(r);
+        } else {
+            return ratingRepository.save(rating);
         }
-        return ratingRepository.save(rating);
     }
 
     public void deleteRating(Long ratingId) {

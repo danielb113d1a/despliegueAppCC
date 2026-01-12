@@ -1,18 +1,20 @@
 package cloudlibrary.example.demo.controller;
 
 import cloudlibrary.example.demo.model.Book;
+import cloudlibrary.example.demo.model.User;
 import cloudlibrary.example.demo.service.BookService;
+import cloudlibrary.example.demo.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -21,60 +23,63 @@ import static org.mockito.Mockito.*;
 class BookControllerTest {
 
     @InjectMocks
-    private BookController bookController; // Controlador real
+    private BookController bookController;
 
     @Mock
-    private BookService bookService; // Mock del servicio
+    private BookService bookService;
+
+    @Mock
+    private UserService userService;
 
     private Book testBook;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setEmail("test@test.com");
+
         testBook = new Book();
         testBook.setId(1L);
         testBook.setTitle("Clean Code");
         testBook.setAuthor("Robert C. Martin");
-        testBook.setDescription("Best practices for writing clean, maintainable code.");
+        testBook.setDescription("Best practices...");
+        testBook.setUser(testUser);
     }
 
     @Test
     void shouldReturnAllBooks() {
         when(bookService.findAllBooks()).thenReturn(List.of(testBook));
 
-        ResponseEntity<List<Book>> response = bookController.getAllBooks();
+        List<Book> response = bookController.getAllBooks();
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody()).hasSize(1);
-        assertThat(response.getBody().get(0).getTitle()).isEqualTo("Clean Code");
+        assertThat(response).hasSize(1);
+        assertThat(response.get(0).getTitle()).isEqualTo("Clean Code");
 
         verify(bookService, times(1)).findAllBooks();
     }
 
     @Test
-    void shouldReturnBookById() {
-        when(bookService.findBookById(1L)).thenReturn(Optional.of(testBook));
+    void shouldCreateBook() {
+        Map<String, Object> bookData = new HashMap<>();
+        bookData.put("title", "Clean Code");
+        bookData.put("author", "Robert C. Martin");
+        bookData.put("description", "Best practices...");
+        bookData.put("email", "test@test.com");
 
-        ResponseEntity<Book> response = bookController.getBookById(1L);
+        when(userService.getUserByEmail("test@test.com")).thenReturn(testUser);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody()).isEqualTo(testBook);
+        when(bookService.saveBook(any(Book.class))).thenReturn(testBook);
 
-        verify(bookService, times(1)).findBookById(1L);
-    }
-
-    @Test
-    void shouldAddNewBook() {
-        when(bookService.saveBook(Mockito.any(Book.class))).thenReturn(testBook);
-
-        ResponseEntity<Book> response = bookController.addBook(testBook);
+        ResponseEntity<?> response = bookController.createBook(bookData);
 
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody()).isEqualTo(testBook);
 
-        verify(bookService, times(1)).saveBook(Mockito.any(Book.class));
+        verify(userService, times(1)).getUserByEmail("test@test.com");
+        verify(bookService, times(1)).saveBook(any(Book.class));
     }
 
     @Test

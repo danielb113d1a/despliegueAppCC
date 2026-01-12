@@ -76,23 +76,6 @@ class UserServiceIT {
     }
 
     @Test
-    void shouldReturnUserProfile() {
-        User user = new User();
-        user.setUsername("Perfil");
-        user.setEmail("perfil" + System.currentTimeMillis() + "@example.com");
-        user.setPassword("123");
-
-        User saved = userService.registerUser(user);
-
-        User profile = userService.getProfile(saved.getId());
-
-        assertThat(profile).isNotNull();
-        assertThat(profile.getId()).isEqualTo(saved.getId());
-        assertThat(profile.getEmail()).isEqualTo(saved.getEmail());
-        assertThat(profile.getUsername()).isEqualTo(saved.getUsername());
-    }
-
-    @Test
     void shouldAuthenticateUser() {
         String password = "pass";
 

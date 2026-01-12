@@ -1,0 +1,227 @@
+.books-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.books-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.categories-scroll {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.cat-pill {
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.cat-pill:hover {
+    background: #f3f4f6;
+}
+
+.cat-pill.active {
+    background: #4f46e5;
+    color: white;
+    border-color: #4f46e5;
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+}
+
+.book-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+    border: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.book-cover {
+    height: 180px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.book-info {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #1f2937;
+}
+
+.book-author {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.book-desc {
+    font-size: 0.85rem;
+    color: #4b5563;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+.rating-area {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.star {
+    font-size: 1.4rem;
+    color: #e5e7eb;
+    cursor: pointer;
+    transition: transform 0.1s, color 0.2s;
+}
+
+.star:hover {
+    transform: scale(1.2);
+    color: #fcd34d;
+}
+
+.star.filled {
+    color: #f97316;
+    text-shadow: 0 0 2px rgba(249, 115, 22, 0.4);
+}
+
+.add-book-btn:hover {
+    background-color: #ea580c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(249, 115, 22, 0.4);
+}
+
+.add-book-btn:active {
+    transform: translateY(0);
+}
+
+.add-book-btn {
+    background-color: #f97316;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
+}
+
+.btn-disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: not-allowed;
+}
+
+.book-form-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 500px;
+    border: 1px solid #e5e7eb;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-inline-style input,
+.form-inline-style textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.btn-save {
+    background-color: #10b981;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background-color: #ef4444;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-rating-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-left: 10px; 
+    padding: 2px 5px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    opacity: 0.7;
+}
+
+.delete-rating-btn:hover {
+    background-color: #fee2e2; 
+    opacity: 1;
+    transform: scale(1.1);
+}

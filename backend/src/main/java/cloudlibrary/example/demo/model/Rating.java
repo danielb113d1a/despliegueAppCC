@@ -12,7 +12,8 @@ public class Rating {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int value; // de 1 a 5 estrellas
+    @Column(name = "\"value\"", nullable = false)
+    private int value;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

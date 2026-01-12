@@ -1,11 +1,14 @@
 package cloudlibrary.example.demo.controller;
 
 import cloudlibrary.example.demo.model.Post;
+import cloudlibrary.example.demo.model.User;
 import cloudlibrary.example.demo.service.PostService;
+import cloudlibrary.example.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +20,11 @@ public class PostController {
     private static final Logger log = LoggerFactory.getLogger(PostController.class);
 
     private final PostService postService;
-    public PostController(PostService postService) {
+    private final UserService userService;
+
+    public PostController(PostService postService, UserService userService) {
         this.postService = postService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -40,9 +46,27 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Post> addPost(@RequestBody Post post) {
-        log.info("Request POST /api/posts - Creando nuevo post con título: {}", post.getTitle());
-        return ResponseEntity.ok(postService.addPost(post));
+    public ResponseEntity<?> addPost(@RequestBody Map<String, String> postData) {
+        String title = postData.get("title");
+        String content = postData.get("content");
+        String email = postData.get("email");
+
+        log.info("Request POST /api/posts - Usuario [{}] creando post: {}", email, title);
+
+        try {
+            User userEncontrado = userService.getUserByEmail(email);
+
+            Post newPost = new Post();
+            newPost.setTitle(title);
+            newPost.setContent(content);
+            newPost.setAuthor(userEncontrado);
+
+            return ResponseEntity.ok(postService.addPost(newPost));
+
+        } catch (Exception e) {
+            log.error("Error creando post: ", e);
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

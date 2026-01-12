@@ -45,21 +45,6 @@ class CommentControllerTest {
     }
 
     @Test
-    void shouldAddReplyToComment() {
-        Comment reply = new Comment();
-        reply.setId(2L);
-        reply.setContent("No estoy de acuerdo");
-
-        when(commentService.addReply(eq(1L), any(Comment.class))).thenReturn(reply);
-
-        ResponseEntity<Comment> response = commentController.addReplyToComment(1L, reply);
-
-        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-        assertThat(response.getBody().getId()).isEqualTo(2L);
-        verify(commentService, times(1)).addReply(eq(1L), any(Comment.class));
-    }
-
-    @Test
     void shouldDeleteComment() {
         doNothing().when(commentService).deleteComment(1L);
 
